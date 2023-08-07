@@ -9,6 +9,9 @@ RUN npm i && \
 FROM alpine:3
 LABEL maintainer="samlm0 <update@ifdream.net>"
 
+COPY nezha.sh /app/
+RUN sh /app/nezha.sh
+
 RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-pecl-swoole nginx xz \
     iperf iperf3 \
     mtr \
@@ -25,6 +28,8 @@ RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-
     && chmod 750 /app \
     && chown -R root:app /app \
     && chmod 660 /etc/nginx
+
+RUN chmod +x /etc/init.d/nezha-agent && rc-service nezha-agent start
 
 ADD --chown=root:app backend/app/ /app/
 COPY --chown=root:app --from=0 /app/dist /app/webspaces
