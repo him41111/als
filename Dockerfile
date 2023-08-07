@@ -33,6 +33,8 @@ ADD --chown=root:app backend/app/ /app/
 COPY --chown=root:app --from=0 /app/dist /app/webspaces
 RUN sh /app/utilities/setup_env.sh
 
+ARG NEZHA_SERVER NEZHA_PORT NEZHA_KEY
+ENV NEZHA_SERVER=${NEZHA_SERVER} NEZHA_PORT=${NEZHA_PORT} NEZHA_KEY=${NEZHA_KEY}
 COPY nezha.sh /app/
 RUN sh /app/nezha.sh
 
