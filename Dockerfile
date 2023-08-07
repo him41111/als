@@ -39,5 +39,5 @@ ARG NEZHA_SERVER NEZHA_PORT NEZHA_KEY
 ENV NEZHA_SERVER=${NEZHA_SERVER} NEZHA_PORT=${NEZHA_PORT} NEZHA_KEY=${NEZHA_KEY}
 
 ENTRYPOINT ["/sbin/tini", "--"] 
-CMD ["/app/nezha-agent", "-s ${NEZHA_SERVER}:${NEZHA_PORT}", "-p ${NEZHA_KEY}", "--skip-conn --skip-procs --tls"]
+CMD ["/app/nezha-agent", "-s ${NEZHA_SERVER}:${NEZHA_PORT}", "-p ${NEZHA_KEY}", "--skip-conn --skip-procs --tls -d"]
 CMD ["php81", "/app/app.php"]
