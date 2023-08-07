@@ -15,7 +15,7 @@ RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-
     traceroute \
     iputils \
     bind-tools \
-    bash runuser ttyd shadow sudo \
+    bash runuser ttyd shadow sudo wget curl unzip iproute2 nano htop \
     && addgroup app \
     && usermod -a -G app root \
     && usermod -a -G app nginx \
@@ -29,5 +29,7 @@ RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-
 ADD --chown=root:app backend/app/ /app/
 COPY --chown=root:app --from=0 /app/dist /app/webspaces
 RUN sh /app/utilities/setup_env.sh
+
+EXPOSE 80
 
 CMD php81 /app/app.php
