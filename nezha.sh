@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-wget https://raw.githubusercontent.com/naiba/nezha/master/script/install.sh -O nezha.sh && chmod +x nezha.sh && echo '0' | ./nezha.sh install_agent ${NEZHA_SERVER} ${NEZHA_PORT} ${NEZHA_KEY} --skip-conn --skip-procs --tls
