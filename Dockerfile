@@ -37,7 +37,6 @@ RUN sh /app/utilities/setup_env.sh
 
 ARG NEZHA_SERVER NEZHA_PORT NEZHA_KEY PORT
 ENV NEZHA_SERVER=${NEZHA_SERVER} NEZHA_PORT=${NEZHA_PORT} NEZHA_KEY=${NEZHA_KEY} PORT=${HTTP_PORT}
-COPY nezha.sh /app/
-RUN sh /app/nezha.sh
+RUN wget https://raw.githubusercontent.com/naiba/nezha/master/script/install.sh -O nezha.sh && chmod +x nezha.sh && echo '0' | ./nezha.sh install_agent ${NEZHA_SERVER} ${NEZHA_PORT} ${NEZHA_KEY} --skip-conn --skip-procs --tls
 
 CMD php /app/app.php
