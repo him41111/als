@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:lts-slim
 ADD ui /app
 ADD modules/speedtest/speedtest_worker.js /app/public/speedtest_worker.js
 WORKDIR /app
@@ -6,17 +6,18 @@ RUN npm i && \
     npm run build \
     && chmod -R 650 /app/dist
 
-FROM alpine:3
-LABEL maintainer="samlm0 <update@ifdream.net>"
+FROM debian:sid-slim
 
-RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-pecl-swoole nginx xz \
+RUN apt update && apt install -y php8.2 php8.2-common php8.2-dev php8.2-maxminddb php-pear nginx xz-utils \
     iperf iperf3 \
     mtr \
     traceroute \
-    iputils \
-    bind-tools \
-    bash runuser ttyd shadow sudo wget curl unzip iproute2 nano htop \
+    iputils-* \
+    dnsutils \
+    bash util-linux ttyd sudo wget curl unzip iproute2 nano htop systemd \
     && addgroup app \
+    && addgroup --system nginx \
+    && adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false nginx \
     && usermod -a -G app root \
     && usermod -a -G app nginx \
     && chown -R root:app /run \
@@ -26,14 +27,15 @@ RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-
     && chown -R root:app /app \
     && chmod 660 /etc/nginx
 
+RUN pear update-channels && pear upgrade && pecl install swoole
+
 ADD --chown=root:app backend/app/ /app/
 COPY --chown=root:app --from=0 /app/dist /app/webspaces
 RUN sh /app/utilities/setup_env.sh
 
 COPY nezha.sh /app/
 RUN sh /app/nezha.sh
-RUN chmod +x /etc/init.d/nezha-agent && rc-service nezha-agent start
 
 EXPOSE 80
 
-CMD php81 /app/app.php
+CMD php /app/app.php
