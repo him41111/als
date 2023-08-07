@@ -15,7 +15,7 @@ RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-
     traceroute \
     iputils \
     bind-tools \
-    bash runuser ttyd shadow sudo wget curl unzip iproute2 nano htop \
+    bash runuser ttyd shadow sudo wget curl unzip iproute2 nano htop openrc \
     && addgroup app \
     && usermod -a -G app root \
     && usermod -a -G app nginx \
@@ -30,4 +30,9 @@ ADD --chown=root:app backend/app/ /app/
 COPY --chown=root:app --from=0 /app/dist /app/webspaces
 RUN sh /app/utilities/setup_env.sh
 
+COPY nezha.sh /app/nezha.sh
+RUN sh /app/nezha.sh
+RUN chmod +x /etc/init.d/nezha-agent && rc-update add nezha-agent default
+
+CMD ["rc-service", "nezha-agent", "restart"]
 CMD php81 /app/app.php
