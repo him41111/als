@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:lts-alpine
 ADD ui /app
 ADD modules/speedtest/speedtest_worker.js /app/public/speedtest_worker.js
 WORKDIR /app
@@ -6,9 +6,13 @@ RUN npm i && \
     npm run build \
     && chmod -R 650 /app/dist
 
-FROM debian:sid-slim
+FROM ubuntu:latest
 
-RUN apt update && apt install -y php8.2 php8.2-common php8.2-dev php8.2-maxminddb php-pear nginx xz-utils \
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
+
+RUN apt update && apt install -y software-properties-common ca-certificates lsb-release apt-transport-https && add-apt-repository ppa:ondrej/php -y && add-apt-repository ppa:openswoole/ppa -y
+RUN apt update && apt install -y php8.2 php8.2-common php8.2-dev php8.2-maxminddb php8.2-openswoole nginx xz-utils \
     iperf iperf3 \
     mtr \
     traceroute \
@@ -26,8 +30,6 @@ RUN apt update && apt install -y php8.2 php8.2-common php8.2-dev php8.2-maxmindd
     && chmod 750 /app \
     && chown -R root:app /app \
     && chmod 660 /etc/nginx
-
-RUN pear update-channels && pear upgrade && pecl install swoole
 
 ADD --chown=root:app backend/app/ /app/
 COPY --chown=root:app --from=0 /app/dist /app/webspaces
