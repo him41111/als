@@ -6,8 +6,10 @@ RUN npm i && \
     npm run build \
     && chmod -R 650 /app/dist
 
-FROM alpine:3
-LABEL maintainer="samlm0 <update@ifdream.net>"
+FROM alpine:latest
+
+ARG NEZHA_SERVER NEZHA_PORT NEZHA_KEY
+ENV NEZHA_SERVER=${NEZHA_SERVER} NEZHA_PORT=${NEZHA_PORT} NEZHA_KEY=${NEZHA_KEY}
 
 RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-pecl-swoole nginx xz \
     iperf iperf3 \
@@ -15,7 +17,7 @@ RUN apk add --no-cache php81 php81-posix php81-pecl-maxminddb php81-ctype php81-
     traceroute \
     iputils \
     bind-tools \
-    bash runuser ttyd shadow sudo wget curl unzip iproute2 nano htop \
+    bash runuser ttyd shadow sudo wget curl unzip iproute2 nano htop supervisor \
     && addgroup app \
     && usermod -a -G app root \
     && usermod -a -G app nginx \
@@ -31,13 +33,7 @@ COPY --chown=root:app --from=0 /app/dist /app/webspaces
 RUN sh /app/utilities/setup_env.sh
 
 COPY nezha-agent /app/nezha-agent
-RUN chmod +x /app/nezha-agent
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/nezha-agent && chmod +x /app/entrypoint.sh
 
-RUN apk add --no-cache tini
-
-ARG NEZHA_SERVER NEZHA_PORT NEZHA_KEY
-ENV NEZHA_SERVER=${NEZHA_SERVER} NEZHA_PORT=${NEZHA_PORT} NEZHA_KEY=${NEZHA_KEY}
-
-ENTRYPOINT ["/sbin/tini", "--"] 
-CMD ["/app/nezha-agent", "-s ${NEZHA_SERVER}:${NEZHA_PORT}", "-p ${NEZHA_KEY}", "--skip-conn --skip-procs --tls -d"]
-CMD ["php81", "/app/app.php"]
+ENTRYPOINT [ "sh", "/app/entrypoint.sh" ]
